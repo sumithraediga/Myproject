@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>B.Tech CSE Attendance Calculator & Predictor</title>
+  <meta name="description" content="A simple, smart, and user-friendly College Attendance Calculator and Future Attendance Predictor for B.Tech CSE students.">
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Top App Navigation / Header -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="brand-group">
+        <div class="brand-icon">
+          <i data-lucide="graduation-cap"></i>
+        </div>
+        <div>
+          <h1 class="brand-title">AttendX <span class="badge-cse">B.Tech CSE</span></h1>
+          <p class="brand-subtitle">Smart College Attendance Calculator & Future Predictor</p>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <button id="btn-load-demo" class="btn btn-outline" title="Load sample B.Tech CSE subjects including the 40/30 Data Structures example">
+          <i data-lucide="sparkles"></i>
+          <span>Load CSE Demo</span>
+        </button>
+        <button id="btn-print" class="btn btn-outline" title="Print or Save formal student attendance report as PDF">
+          <i data-lucide="printer"></i>
+          <span>Save / Print</span>
+        </button>
+        <button id="btn-reset" class="btn btn-ghost text-danger" title="Clear all subjects and reset data">
+          <i data-lucide="rotate-ccw"></i>
+          <span>Reset</span>
+        </button>
+        <button id="btn-theme-toggle" class="btn btn-icon" aria-label="Toggle dark/light theme" title="Toggle Theme">
+          <i id="theme-icon" data-lucide="sun"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-container">
+
+    <!-- STUDENT DETAILS CARD -->
+    <section class="card profile-card" id="student-profile-section">
+      <div class="card-header flex-between">
+        <div class="section-title-group">
+          <div class="section-icon bg-primary-soft">
+            <i data-lucide="user-check"></i>
+          </div>
+          <div>
+            <h2 class="section-title">1. Student Details</h2>
+            <p class="section-desc">Personal & academic details for your attendance records and report</p>
+          </div>
+        </div>
+        <button id="btn-toggle-profile" class="btn btn-sm btn-ghost" aria-label="Toggle Student Details">
+          <i data-lucide="chevron-up" id="profile-chevron"></i>
+        </button>
+      </div>
+
+      <div class="card-body profile-grid" id="profile-fields">
+        <div class="input-group">
+          <label for="student-name">
+            <i data-lucide="user"></i> Student Name
+          </label>
+          <input type="text" id="student-name" placeholder="e.g. Alex Sharma" value="Alex Sharma">
+        </div>
+
+        <div class="input-group">
+          <label for="student-roll">
+            <i data-lucide="hash"></i> Roll Number / UID
+          </label>
+          <input type="text" id="student-roll" placeholder="e.g. 21BCSE1042" value="21BCSE1042">
+        </div>
+
+        <div class="input-group">
+          <label for="college-name">
+            <i data-lucide="school"></i> College / University Name
+          </label>
+          <input type="text" id="college-name" placeholder="e.g. National Institute of Engineering & Tech" value="National Institute of Technology">
+        </div>
+
+        <div class="input-group">
+          <label for="department-name">
+            <i data-lucide="binary"></i> Branch / Department
+          </label>
+          <input type="text" id="department-name" placeholder="e.g. Computer Science & Engineering" value="B.Tech - Computer Science & Engineering">
+        </div>
+
+        <div class="input-group">
+          <label for="semester-val">
+            <i data-lucide="calendar"></i> Semester
+          </label>
+          <select id="semester-val">
+            <option value="Semester 1">Semester 1</option>
+            <option value="Semester 2">Semester 2</option>
+            <option value="Semester 3">Semester 3</option>
+            <option value="Semester 4">Semester 4</option>
+            <option value="Semester 5">Semester 5</option>
+            <option value="Semester 6" selected>Semester 6</option>
+            <option value="Semester 7">Semester 7</option>
+            <option value="Semester 8">Semester 8</option>
+          </select>
+        </div>
+      </div>
+    </section>
+
+    <!-- REQUIRED CRITERIA BAR -->
+    <section class="card target-config-card">
+      <div class="target-config-flex">
+        <div class="target-info">
+          <div class="section-icon bg-warning-soft">
+            <i data-lucide="target"></i>
+          </div>
+          <div>
+            <h3 class="target-title">Required Attendance Target</h3>
+            <p class="target-subtitle">Change the minimum threshold requirement (default: 75%)</p>
+          </div>
+        </div>
+
+        <div class="target-controls">
+          <div class="target-presets">
+            <button class="btn-preset active" data-target="75">75% (Standard)</button>
+            <button class="btn-preset" data-target="80">80%</button>
+            <button class="btn-preset" data-target="85">85%</button>
+            <button class="btn-preset" data-target="65">65% (Medical)</button>
+          </div>
+          <div class="target-input-wrap">
+            <input type="number" id="required-target-input" min="1" max="100" value="75" step="1">
+            <span class="unit">%</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- DASHBOARD: OVERALL SUMMARY STATS -->
+    <section class="dashboard-section">
+      <div class="section-title-group mb-3">
+        <div class="section-icon bg-success-soft">
+          <i data-lucide="layout-dashboard"></i>
+        </div>
+        <div>
+          <h2 class="section-title">Overall Attendance Dashboard</h2>
+          <p class="section-desc">Combined real-time statistics calculated across all enrolled subjects</p>
+        </div>
+      </div>
+
+      <!-- Main Gauges & Stat Cards -->
+      <div class="dashboard-grid">
+        
+        <!-- Overall Current Gauge Card -->
+        <div class="dash-card primary-gauge-card">
+          <div class="dash-card-header">
+            <span class="dash-label">Current Overall Attendance</span>
+            <span id="current-overall-status-badge" class="status-badge badge-safe">Above Required</span>
+          </div>
+          <div class="gauge-content">
+            <div class="gauge-ring-wrap">
+              <svg class="progress-ring" width="130" height="130" viewBox="0 0 130 130">
+                <circle class="progress-ring__circle-bg" stroke-width="10" cx="65" cy="65" r="54" />
+                <circle id="current-gauge-bar" class="progress-ring__circle" stroke-width="10" cx="65" cy="65" r="54" />
+              </svg>
+              <div class="gauge-value-center">
+                <span id="overall-current-pct" class="gauge-pct">0.00%</span>
+                <span class="gauge-sub">Current</span>
+              </div>
+            </div>
+            <div class="gauge-details">
+              <div class="stat-line">
+                <span class="stat-name">Classes Attended:</span>
+                <strong id="stat-total-attended" class="stat-val text-success">0</strong>
+              </div>
+              <div class="stat-line">
+                <span class="stat-name">Classes Absent:</span>
+                <strong id="stat-total-absent" class="stat-val text-danger">0</strong>
+              </div>
+              <div class="stat-line">
+                <span class="stat-name">Total Conducted:</span>
+                <strong id="stat-total-conducted" class="stat-val">0</strong>
+              </div>
+            </div>
+          </div>
+          <!-- Dynamic Action Advisory Banner -->
+          <div id="overall-advice-banner" class="advice-banner banner-safe">
+            <i data-lucide="shield-check" class="banner-icon"></i>
+            <span id="overall-advice-text">Your overall attendance is above the 75% requirement.</span>
+          </div>
+        </div>
+
+        <!-- Overall Predicted Gauge Card -->
+        <div class="dash-card predicted-gauge-card">
+          <div class="dash-card-header">
+            <span class="dash-label">Predicted Overall Attendance</span>
+            <span id="predicted-delta-badge" class="status-badge badge-neutral">+0.00% Delta</span>
+          </div>
+          <div class="gauge-content">
+            <div class="gauge-ring-wrap">
+              <svg class="progress-ring" width="130" height="130" viewBox="0 0 130 130">
+                <circle class="progress-ring__circle-bg" stroke-width="10" cx="65" cy="65" r="54" />
+                <circle id="predicted-gauge-bar" class="progress-ring__circle stroke-future" stroke-width="10" cx="65" cy="65" r="54" />
+              </svg>
+              <div class="gauge-value-center">
+                <span id="overall-predicted-pct" class="gauge-pct text-future">0.00%</span>
+                <span class="gauge-sub">Predicted</span>
+              </div>
+            </div>
+            <div class="gauge-details">
+              <div class="stat-line">
+                <span class="stat-name">Future Planned:</span>
+                <strong id="stat-future-total" class="stat-val text-future">0</strong>
+              </div>
+              <div class="stat-line">
+                <span class="stat-name">Future Attended:</span>
+                <strong id="stat-future-attended" class="stat-val text-success">0</strong>
+              </div>
+              <div class="stat-line">
+                <span class="stat-name">Future Missed:</span>
+                <strong id="stat-future-missed" class="stat-val text-danger">0</strong>
+              </div>
+            </div>
+          </div>
+          <div id="predicted-advice-banner" class="advice-banner banner-neutral">
+            <i data-lucide="trending-up" class="banner-icon"></i>
+            <span id="predicted-advice-text">Add upcoming future classes below to simulate your final standing.</span>
+          </div>
+        </div>
+
+        <!-- Quick Metrics Overview Tile -->
+        <div class="dash-card metrics-tile-card">
+          <h4 class="metrics-title"><i data-lucide="activity"></i> Academic Overview</h4>
+          <div class="metrics-list">
+            <div class="metric-row">
+              <span class="metric-icon-wrap bg-primary-soft"><i data-lucide="book-open"></i></span>
+              <div class="metric-info">
+                <span class="metric-caption">Enrolled Subjects</span>
+                <strong id="metric-subject-count" class="metric-number">0</strong>
+              </div>
+            </div>
+            <div class="metric-row">
+              <span class="metric-icon-wrap bg-success-soft"><i data-lucide="check-circle-2"></i></span>
+              <div class="metric-info">
+                <span class="metric-caption">Subjects in Safe Zone (&ge; Target)</span>
+                <strong id="metric-safe-count" class="metric-number text-success">0</strong>
+              </div>
+            </div>
+            <div class="metric-row">
+              <span class="metric-icon-wrap bg-danger-soft"><i data-lucide="alert-triangle"></i></span>
+              <div class="metric-info">
+                <span class="metric-caption">Subjects with Shortage (&lt; Target)</span>
+                <strong id="metric-danger-count" class="metric-number text-danger">0</strong>
+              </div>
+            </div>
+            <div class="metric-row">
+              <span class="metric-icon-wrap bg-warning-soft"><i data-lucide="target"></i></span>
+              <div class="metric-info">
+                <span class="metric-caption">Minimum Required Criteria</span>
+                <strong id="metric-required-target" class="metric-number text-warning">75%</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- SUBJECT-WISE ATTENDANCE & FUTURE SIMULATOR SECTION -->
+    <section class="subjects-section">
+      <div class="subjects-header-bar">
+        <div class="section-title-group">
+          <div class="section-icon bg-indigo-soft">
+            <i data-lucide="layers"></i>
+          </div>
+          <div>
+            <h2 class="section-title">2. Subject-wise Attendance & Future Classes</h2>
+            <p class="section-desc">Manage your course subjects, track attended/absent hours, and simulate future classes</p>
+          </div>
+        </div>
+
+        <div class="subjects-actions">
+          <button id="btn-add-subject" class="btn btn-primary" title="Add a new subject to your list">
+            <i data-lucide="plus-circle"></i>
+            <span>Add Subject</span>
+          </button>
+          <button id="btn-toggle-future-all" class="btn btn-outline" title="Show/Hide Future Planner columns on all subjects">
+            <i data-lucide="calendar-plus"></i>
+            <span id="future-toggle-text">Add Future Classes</span>
+          </button>
+          <button id="btn-recalculate" class="btn btn-outline" title="Recalculate attendance stats">
+            <i data-lucide="refresh-cw"></i>
+            <span>Calculate Attendance</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick Subject Template Chips for B.Tech CSE -->
+      <div class="cse-presets-bar">
+        <span class="presets-label"><i data-lucide="plus"></i> Quick Add CSE Subject:</span>
+        <div class="presets-chips" id="quick-subject-chips">
+          <button class="chip" data-name="Data Structures & Algorithms">Data Structures</button>
+          <button class="chip" data-name="Operating Systems">Operating Systems</button>
+          <button class="chip" data-name="Database Management Systems">DBMS</button>
+          <button class="chip" data-name="Computer Networks">Computer Networks</button>
+          <button class="chip" data-name="Theory of Computation">Theory of Computation</button>
+          <button class="chip" data-name="Design & Analysis of Algorithms">DAA</button>
+          <button class="chip" data-name="Software Engineering">Software Engineering</button>
+          <button class="chip" data-name="Artificial Intelligence">AI & Machine Learning</button>
+        </div>
+      </div>
+
+      <!-- SUBJECT CARDS CONTAINER -->
+      <div id="subjects-container" class="subjects-grid">
+        <!-- Subject cards will be dynamically rendered by app.js -->
+      </div>
+
+      <!-- Empty State when no subjects are added -->
+      <div id="empty-state" class="empty-state-card" style="display: none;">
+        <div class="empty-icon">
+          <i data-lucide="inbox"></i>
+        </div>
+        <h3>No Subjects Added Yet</h3>
+        <p>Click <strong>"Add Subject"</strong> or load the pre-configured <strong>"B.Tech CSE Demo"</strong> to start calculating.</p>
+        <div class="empty-buttons">
+          <button id="btn-empty-add" class="btn btn-primary">
+            <i data-lucide="plus"></i> Add First Subject
+          </button>
+          <button id="btn-empty-demo" class="btn btn-outline">
+            <i data-lucide="sparkles"></i> Load CSE Demo
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- FORMULA & CALCULATION EXPLAINER CARD -->
+    <section class="card explainer-card">
+      <div class="card-header flex-between" id="explainer-header">
+        <div class="section-title-group">
+          <div class="section-icon bg-info-soft">
+            <i data-lucide="calculator"></i>
+          </div>
+          <div>
+            <h2 class="section-title">3. How Calculations Work (Formulas & Verification)</h2>
+            <p class="section-desc">Transparent mathematical breakdown of Current %, Future %, and Attendance Planning</p>
+          </div>
+        </div>
+        <button id="btn-toggle-explainer" class="btn btn-sm btn-ghost" aria-label="Toggle Explainer">
+          <i data-lucide="chevron-down" id="explainer-chevron"></i>
+        </button>
+      </div>
+
+      <div class="card-body explainer-body" id="explainer-content" style="display: none;">
+        <div class="explainer-grid">
+          
+          <div class="formula-box">
+            <h4><i data-lucide="check"></i> 1. Current Subject Attendance %</h4>
+            <div class="formula-code">
+              $$\text{Attendance \%} = \left(\frac{\text{Classes Attended}}{\text{Total Classes Conducted}}\right) \times 100$$
+            </div>
+            <p class="formula-note"><strong>Verification:</strong> $\text{Total Conducted} = \text{Attended} + \text{Absent}$. Auto-verified in real-time.</p>
+          </div>
+
+          <div class="formula-box">
+            <h4><i data-lucide="sparkles"></i> 2. Predicted Future Attendance %</h4>
+            <div class="formula-code">
+              $$\text{Future \%} = \left(\frac{\text{Current Attended} + \text{Future Attended}}{\text{Current Total} + \text{Future Attended} + \text{Future Missed}}\right) \times 100$$
+            </div>
+            <p class="formula-note"><strong>Live Simulator:</strong> Test different scenarios of upcoming classes you plan to attend or miss.</p>
+          </div>
+
+          <div class="formula-box">
+            <h4><i data-lucide="trending-up"></i> 3. Classes Needed to Reach Target ($R\%$)</h4>
+            <div class="formula-code">
+              $$\text{Classes Needed } (x) = \left\lceil \frac{R \cdot \text{Total} - 100 \cdot \text{Attended}}{100 - R} \right\rceil$$
+            </div>
+            <p class="formula-note">Consecutive upcoming classes you must attend (without missing any) to pull your attendance up to $R\%$.</p>
+          </div>
+
+          <div class="formula-box">
+            <h4><i data-lucide="coffee"></i> 4. Safe Classes You Can Miss / Bunk</h4>
+            <div class="formula-code">
+              $$\text{Safe Bunks } (y) = \left\lfloor \frac{100 \cdot \text{Attended} - R \cdot \text{Total}}{R} \right\rfloor$$
+            </div>
+            <p class="formula-note">Maximum upcoming classes you can miss while still maintaining at least $R\%$ attendance.</p>
+          </div>
+
+          <div class="formula-box full-width">
+            <h4><i data-lucide="sigma"></i> 5. Overall Weighted Attendance %</h4>
+            <div class="formula-code">
+              $$\text{Overall Attendance \%} = \left(\frac{\sum \text{Attended in all subjects}}{\sum \text{Total Conducted in all subjects}}\right) \times 100$$
+            </div>
+            <p class="formula-note"><strong>Crucial Note:</strong> Calculated across total conducted hours, <em>never</em> by simply averaging subject percentages (which gives mathematically incorrect results when subjects have different class counts).</p>
+          </div>
+
+        </div>
+
+        <!-- Example Walkthrough Box -->
+        <div class="example-walkthrough-box">
+          <h4><i data-lucide="lightbulb"></i> B.Tech CSE Example: Data Structures (Requested Demo)</h4>
+          <div class="example-content">
+            <div class="example-column">
+              <span class="badge-tag">Current State</span>
+              <ul>
+                <li>Total classes conducted = <strong>40</strong></li>
+                <li>Classes attended = <strong>30</strong></li>
+                <li>Classes absent = <strong>10</strong> ($40 - 30 = 10$)</li>
+                <li>Current Attendance % = $(30 / 40) \times 100 = \mathbf{75.00\%}$</li>
+              </ul>
+            </div>
+            <div class="example-arrow"><i data-lucide="arrow-right"></i></div>
+            <div class="example-column">
+              <span class="badge-tag bg-future-tag">Future Classes Planned</span>
+              <ul>
+                <li>Will attend = <strong>8</strong></li>
+                <li>Will miss = <strong>2</strong></li>
+                <li>New Total = $40 + 8 + 2 = \mathbf{50}$</li>
+                <li>New Attended = $30 + 8 = \mathbf{38}$</li>
+                <li>Predicted % = $(38 / 50) \times 100 = \mathbf{76.00\%}$</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- STEP-BY-STEP CALCULATION DETAILS MODAL -->
+  <div id="calc-modal" class="modal-backdrop" style="display: none;">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <i data-lucide="file-spreadsheet"></i>
+          <h3 id="modal-subject-title">Subject Calculation Breakdown</h3>
+        </div>
+        <button id="btn-close-modal" class="btn btn-icon btn-ghost" aria-label="Close modal">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+      <div class="modal-body" id="modal-content">
+        <!-- Injected via JavaScript -->
+      </div>
+      <div class="modal-footer">
+        <button id="btn-modal-done" class="btn btn-primary">Got it</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRINT REPORT TEMPLATE (Hidden from web view, displayed during printing / export) -->
+  <div id="print-report-container" class="print-only">
+    <div class="print-header">
+      <h1 class="print-title">ACADEMIC ATTENDANCE & PROJECTION REPORT</h1>
+      <p class="print-subtitle">College Attendance Calculator & Future Predictor</p>
+      <div class="print-divider"></div>
+    </div>
+
+    <div class="print-student-info" id="print-student-info">
+      <!-- Injected by app.js -->
+    </div>
+
+    <div class="print-section-heading">OVERALL SUMMARY</div>
+    <div class="print-overall-summary" id="print-overall-summary">
+      <!-- Injected by app.js -->
+    </div>
+
+    <div class="print-section-heading">SUBJECT-WISE ATTENDANCE BREAKDOWN</div>
+    <table class="print-table" id="print-subjects-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Subject Name</th>
+          <th>Total</th>
+          <th>Attended</th>
+          <th>Absent</th>
+          <th>Current %</th>
+          <th>Future Attended</th>
+          <th>Future Missed</th>
+          <th>Predicted %</th>
+          <th>Status / Action Required</th>
+        </tr>
+      </thead>
+      <tbody id="print-subjects-tbody">
+        <!-- Injected by app.js -->
+      </tbody>
+    </table>
+
+    <div class="print-footer">
+      <p>Report Generated on: <span id="print-date-time"></span> | Target Requirement: <span id="print-target-pct"></span>%</p>
+      <p class="print-disclaimer">Note: Attendance % = (Attended / Total Conducted) * 100. Verification: Total = Attended + Absent.</p>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="app-footer">
+    <div class="footer-container">
+      <p>B.Tech CSE College Attendance Calculator &bull; Designed for Engineering Students</p>
+      <div class="footer-shortcuts">
+        <span><kbd>Ctrl</kbd> + <kbd>P</kbd> to Print Report</span>
+        <span>Auto-saved to Browser Storage</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
